@@ -9,6 +9,9 @@ Unlike simple "stop-and-go" logic, this controller implements a **Continuous Rep
 ![Gazebo Simulation Environment]
 <img width="1343" height="826" alt="image" src="https://github.com/user-attachments/assets/181b8814-b0ef-406f-acce-3a1e6a465dbe" />
 
+## [Video Link]
+https://drive.google.com/file/d/1fyjyz0FkORuh2HaiiOvOvaVd46t9hP-r/view?usp=sharing
+
 
 ### ⚙️ Sensor Configuration
 * **3D LiDAR:** Used for spatial awareness and obstacle detection (Point Cloud clustering).
