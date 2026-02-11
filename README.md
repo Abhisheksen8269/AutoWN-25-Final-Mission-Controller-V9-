@@ -1,37 +1,14 @@
 # AutoWN-25-Final-Mission-Controller-V9-
 AutoWN '25 Final Mission Controller (V9)
 
-This repository contains the autonomous flight logic for the AutoWN '25 competition. The system utilizes ROS2 Humble, MAVROS, and Lidar-based obstacle avoidance to navigate a complex environment with continuous repulsion fields.
-
-## 🚀 The Approach: Step-by-Step
-
-## Step 1: State Machine Architecture
-To ensure reliability, the drone operates on a robust finite state machine (FSM). It sequences through connection, arming, takeoff, and task execution. This ensures the drone never attempts a mission task before the hardware is fully ready.
-
-## Step 2: Perception & Lidar Clustering
-The drone "sees" the world through a 3D Lidar.Filtering: We filter points relative to the drone's altitude to ignore the floor and ceiling.Clustering: Using the DBSCAN algorithm, raw points are grouped into distinct obstacle objects (Pillars vs. Walls).Visualization: Obstacles are published as MarkerArrays to Rviz for real-time monitoring.
-
-## Step 3: Continuous Repulsion Field (Avoidance) 
-Instead of a simple "stop and turn" logic, V9 uses a Potential Field approach.Attractive Force: The Mission Queue pulls the drone toward the next waypoint.Repulsive Force: Every detected obstacle within the AVOID_RADIUS exerts a "push" vector away from itself.The Math: The repulsion strength is calculated as:$$F_{repulsion} = \text{max}(0, \text{AvoidRadius} - \text{dist}) \times \text{AvoidStrength}$$This force is blended with the movement vector to "bend" the drone's path around obstacles smoothly.
-
-## Step 4: ArUco Vision 
-IntegrationUsing the front camera and OpenCV, the drone scans for ArUco markers on walls. When a marker is detected, the PerceptionSystem calculates its 3D position in the map frame and broadcasts a TF (Transform), allowing the drone to "remember" where the target was located.Step 5: Smooth InterpolationTo prevent jerky movements, the controller does not send the final waypoint immediately. It interpolates the setpoint, moving it in 5cm increments every 50ms, resulting in fluid, organic flight.
-
-
-This is a sophisticated ROS2/MAVROS mission controller. To host this effectively on GitHub, you need a structured repository that explains the Autonomous Navigation, Obstacle Avoidance (Potential Fields), and Perception logic.
-
-Here is the blueprint for your GitHub repository.
-
-**Mission:** Autonomous Drone Navigation with Continuous Obstacle Avoidance  
-**Platform:** ROS 2 Humble / Gazebo / PX4 / MAVROS
-
-![Gazebo Simulation Environment](assets/gazebo_env.png)
-*(Place a screenshot of your drone in the Gazebo arena here)*
-
 ## 📝 Project Description
 This repository contains the **V9 Mission Controller** for the AutoWN'25 competition. The system is designed to autonomously navigate a quadcopter through a complex obstacle course, scan for ArUco markers on vertical walls, and perform precision landings. 
 
-Unlike simple "stop-and-go" logic, this controller implements a **Continuous Repulsion Field** (Potential Field) algorithm, allowing the drone to smoothly curve around obstacles while maintaining forward momentum toward its goal.
+Unlike simple "stop-and-go" logic, this controller implements a **Continuous Repulsion Field** (Potential Field) algorithm, allowing the drone to smoothly curve around obstacles while maintaining forward momentum toward its goal
+
+![Gazebo Simulation Environment]
+<img width="1343" height="826" alt="image" src="https://github.com/user-attachments/assets/181b8814-b0ef-406f-acce-3a1e6a465dbe" />
+
 
 ### ⚙️ Sensor Configuration
 * **3D LiDAR:** Used for spatial awareness and obstacle detection (Point Cloud clustering).
@@ -51,7 +28,8 @@ Raw point cloud data is noisy. We process it in three stages:
     * *Min Samples:* 5 points
 
 ![Rviz Visualization](assets/rviz_clustering.png)
-*(Place a screenshot of Rviz showing the Red/Blue marker obstacles here)*
+<img width="1425" height="670" alt="image" src="https://github.com/user-attachments/assets/8412f488-b03d-43c8-9ed6-60951867d0f4" />
+
 
 ### 2. Navigation: Potential Field Repulsion
 To avoid obstacles dynamically, we calculate a **Repulsion Vector** that "pushes" the drone away from detected clusters.
@@ -88,7 +66,49 @@ We use the `opencv-contrib-python` library to detect ArUco markers.
 ### 2. Build Instructions
 Navigate to your colcon workspace root and build the package:
 
-```bash
+```
 cd ~/ros2_ws
-colcon build --packages-select autown_mission
+colcon build 
 source install/setup.bash
+```
+
+### 2. Launch gazebo Simulation 
+
+```
+export GAZEBO_MODEL_PATH=$HOME/iq_sim/models:$GAZEBO_MODEL_PATH
+gazebo --verbose $HOME/iq_sim/worlds/lidar.world
+```
+
+
+### 2. Launch SITL to connect with gazebo
+
+```
+ python3 Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --console --map
+
+```
+
+### 2. Launch MAVROS With ROS2 humble
+
+```
+ros2 run mavros mavros_node --ros-args     -p fcu_url:=udp://127.0.0.1:14550@     -p use_sim_time:=true  
+
+```
+
+### 2. Run ROS2 node mission
+
+```
+ros2 run my_pakage mission 
+
+
+```
+
+### 2. Launch Rviz2
+
+```
+rviz2
+
+
+```
+
+
+
